@@ -1,6 +1,7 @@
 def reward_function(params):
 	'''
 	modified from amazon deepracer sample codes. maximum speed 5m/s, speed granularity 2, steering angle granularity 5(or 7)
+	2019, May 8, deepracer preview console
 	'''
 
 	# Calculate 3 marks that are farther and father away from the center line
