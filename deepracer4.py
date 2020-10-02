@@ -2,6 +2,8 @@
 #granularity 3
 #maxangle 25
 #2019 championship course
+#from scottpletcher
+
 def reward_function(params):
 
     center_variance = params["distance_from_center"]
@@ -27,12 +29,12 @@ def reward_function(params):
         reward -= 10
 
     SPEED_THRESHOLD_1 = 0.8
-    SPEED_THRESHOLD_2 = 1.8
+    SPEED_THRESHOLD_2 = 1.5
 	
     if params['speed'] < SPEED_THRESHOLD_1:
-        reward *= 0.4
-    elif params['speed'] <= SPEED_THRESHOLD_2:
         reward *= 0.6
+    elif params['speed'] <= SPEED_THRESHOLD_2:
+        reward *= 0.8
 
 		
     return float(reward)
