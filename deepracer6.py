@@ -1,7 +1,7 @@
-# max angle : 10
+# max angle : 13
 # speed granularity : 3
 # steering granularity : 3
-# max speed : 4
+# max speed : 3.8
 # 4 hours training
 # lane tracing
 
@@ -43,4 +43,5 @@ def reward_function(params):
     # Penalize reward if the car is steering too much
     if abs(params['steering_angle']) > ABS_STEERING_THRESHOLD:  # Only need the absolute steering angle
         reward *= 0.8
-	
+
+    return reward
