@@ -1,7 +1,7 @@
 # max angle : 10
 # speed granularity : 3
 # steering granularity : 3
-# max speed : 3.5
+# max speed : 4
 # 4 hours training
 # lane tracing
 
