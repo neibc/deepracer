@@ -1,3 +1,9 @@
+# max angle : 20
+# speed granularity : 3
+# steering granularity : 3
+# max speed : 3.2
+# 4 hours training
+# lane tracing
 
 def reward_function(params):
 
