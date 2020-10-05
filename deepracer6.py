@@ -28,13 +28,13 @@ def reward_function(params):
     else:
         reward -= 10
 
-    SPEED_THRESHOLD_1 = 1.3
-    SPEED_THRESHOLD_2 = 2.5
+    SPEED_THRESHOLD_1 = 1.4
+    SPEED_THRESHOLD_2 = 3.0
 	
     if params['speed'] < SPEED_THRESHOLD_1:
         reward *= 0.6
     elif params['speed'] <= SPEED_THRESHOLD_2:
-        reward *= 0.8
+        reward *= (0.6 + 0.4 * (params['speed'] / 3.0 - 0.46))
 
     # Steering penality threshold, change the number based on your action space setting
     ABS_STEERING_THRESHOLD = 10
