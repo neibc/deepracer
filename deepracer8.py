@@ -21,22 +21,23 @@ def reward_function(params):
     else:
         reward -= 10
 
-    SPEED_THRESHOLD_1 = 1.0
-    SPEED_THRESHOLD_2 = 2.5
+    SPEED_THRESHOLD_1 = 1.5
+    SPEED_THRESHOLD_2 = 3.0
     SPEED_THRESHOLD_DIFF = SPEED_THRESHOLD_2 - SPEED_THRESHOLD_1
 
     if reward > 0:
         if params['speed'] < SPEED_THRESHOLD_1:
             reward *= 0.6
         elif params['speed'] <= SPEED_THRESHOLD_2:
-            reward *= (0.6 + 0.4 * (params['speed'] - SPEED_THRESHOLD_1) / SPEED_THRESHOLD_DIFF)
+            reward *= (0.6 + (0.4 * (params['speed'] - SPEED_THRESHOLD_1) / SPEED_THRESHOLD_DIFF))
 
     # Steering penality threshold, change the number based on your action space setting
     ABS_STEERING_THRESHOLD = 8
 
     # Penalize reward if the car is steering too much
-    if abs(params['steering_angle']) > ABS_STEERING_THRESHOLD:  # Only need the absolute steering angle
-        reward *= 0.8
+    if reward > 0:
+        if abs(params['steering_angle']) > ABS_STEERING_THRESHOLD:  # Only need the absolute steering angle
+            reward *= 0.8
 
     return reward
     
