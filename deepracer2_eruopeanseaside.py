@@ -1,3 +1,10 @@
+# max angle : 10
+# speed granularity : 3
+# steering granularity : 3
+# max speed : 4.0
+# 4 hours training
+# racing line tracing
+
 def reward_function(params):
     center_variance = params["distance_from_center"] / params["track_width"]
     
@@ -8,10 +15,13 @@ def reward_function(params):
     reward = 21.0
     
     if params["all_wheels_on_track"]:
-        reward += 10
+        reward += 5
     else:
-        reward -= 10
+        reward -= 5
     
+    if params["is_offtrack"]:
+        reward -= 30
+	
     if params["closest_waypoints"][1] in left_lane and params["is_left_of_center"]:
         reward += 10
     elif params["closest_waypoints"][1] in right_lane and not params["is_left_of_center"]:
@@ -21,8 +31,8 @@ def reward_function(params):
     else:
         reward -= 10
 
-    SPEED_THRESHOLD_1 = 1.3
-    SPEED_THRESHOLD_2 = 3.2
+    SPEED_THRESHOLD_1 = 0.5
+    SPEED_THRESHOLD_2 = 3.5
     SPEED_THRESHOLD_DIFF = SPEED_THRESHOLD_2 - SPEED_THRESHOLD_1
 
     if reward > 0:
@@ -32,7 +42,7 @@ def reward_function(params):
             reward *= (0.6 + 0.4 * (params['speed'] - SPEED_THRESHOLD_1) / SPEED_THRESHOLD_DIFF)
 
     # Steering penality threshold, change the number based on your action space setting
-    ABS_STEERING_THRESHOLD = 5
+    ABS_STEERING_THRESHOLD = 8
 
     # Penalize reward if the car is steering too much
     if abs(params['steering_angle']) > ABS_STEERING_THRESHOLD:  # Only need the absolute steering angle
