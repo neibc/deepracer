@@ -15,6 +15,13 @@
 
 from ecdsa import SigningKey, SECP256k1
 import sha3
+import pandas as pd
+import logging
+
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.INFO,
+    datefmt='%Y-%m-%d %H:%M:%S')
 
 def checksum_encode(addr_str): # Takes a hex (string) address as input
     keccak = sha3.keccak_256()
@@ -90,19 +97,28 @@ def check_key(dict, key):
 
 print('ethereum account search tool ver 0.1 by jskim')
 
-import pandas as pd
+startn = int("1000000000000000000000000000000000000000000000000000000000000001", 16)
+endn = int("2000000000000000000000000000000000000000000000000000000000000001", 16)
+
+print('start num:')
+print(startn.to_bytes(32, byteorder='big').hex())
+print('end num:')
+print(endn.to_bytes(32, byteorder='big').hex())
+
+logging.info('acc list file loading..')
 dict_from_csv = pd.read_csv('ethacclist.csv', dtype={'address': object}).set_index('address').T.to_dict()
 print('sample searching on the account list/richest one.. 0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2')
 print(check_key(dict_from_csv, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'))
 
-for i in range(100000, 100000000):
+logging.info('start pair guessing..')
+
+for i in range(startn, endn):
     addr_str = get_addr(i)
     if check_key(dict_from_csv, addr_str):
-        print('bingo:', addr_str)
+        print('BINGO:', addr_str)
         get_addr(i, 1)
     if i % 100000 == 0:
-        print(i)
+        print(i.to_bytes(32, byteorder='big').hex())
         f = open('search_result.log','a')
-        f.write(str(i))
+        f.write(i.to_bytes(32, byteorder='big').hex())
         f.write('\n')
-print('end of run')
