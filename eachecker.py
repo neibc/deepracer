@@ -97,7 +97,7 @@ def check_key(dict, key):
 
 print('ethereum account search tool ver 0.1 by jskim')
 
-startn = int("1000000000000000000000000000000000000000000000000000000000000001", 16)
+startn = int("1000000000000000000000000000000000000000000000000000000001142560", 16)
 endn = int("2000000000000000000000000000000000000000000000000000000000000001", 16)
 
 print('start num:')
@@ -118,7 +118,7 @@ for i in range(startn, endn):
         print('BINGO:', addr_str)
         get_addr(i, 1)
     if i % 100000 == 0:
-        print(i.to_bytes(32, byteorder='big').hex())
+        logging.info(i.to_bytes(32, byteorder='big').hex())
         f = open('search_result.log','a')
         f.write(i.to_bytes(32, byteorder='big').hex())
         f.write('\n')
