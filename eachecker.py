@@ -131,7 +131,7 @@ runmode = 0    # 1 for full search from startn to endn, 0 for repeeated pattern
 
 if runmode == 0:
     print('runmode 0, repeated pattern searching...')
-    for i in [1,2,4,8,16,32,64,128]:
+    for i in [1,2,4,8,16,32]:
         rangeval = (int)(math.pow(16, i)) - 1
         logging.info('range : ' + str(i) + ' ' + str(rangeval))
         for j in range(1, rangeval):
