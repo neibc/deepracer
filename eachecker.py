@@ -4,6 +4,8 @@
 # pip install pysha3
 
 # export ethereum account from google BigQuery open data
+# https://cloud.google.com -> BigQuery console
+#
 # SELECT `address`
 # FROM `bigquery-public-data.crypto_ethereum.balances`
 # WHERE `eth_balance` > 1
@@ -11,31 +13,11 @@
 # LIMIT 4000000
 # https://console.cloud.google.com/bigquery
 #
-# export it to ethacclist.csv
-#
-# modified from https://github.com/vkobel/ethereum-generate-wallet
+# export it to ethacclist.csv via google drive
 
 from ecdsa import SigningKey, SECP256k1
 import sha3
 import pandas as pd
-import logging
-import math
-
-LOGFILENAME = 'search_result.log'
-
-logging.basicConfig(
-    format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.INFO,
-    datefmt='%Y-%m-%d %H:%M:%S')
-
-def genrephex(elementsize, ordernum):
-    finalval = ordernum
-    repcnt = (int)(64/elementsize)
-    for i in range(1, repcnt):
-        finalval = finalval * (int)(math.pow(16, elementsize)) + ordernum
-
-#    finalval = 115792089237316195423570985008687907852837564279074904382605163141518161494336
-    return finalval
 
 def checksum_encode(addr_str): # Takes a hex (string) address as input
     keccak = sha3.keccak_256()
@@ -50,10 +32,6 @@ def checksum_encode(addr_str): # Takes a hex (string) address as input
             out += c
     return '0x' + out
 
-#def get_addr(priv_str, isprint=0):
-#   priv_str = int("0000000000000000000000000000000000000000000000000000000000000001", 16).to_bytes(32, byteorder='big')
-#   privinp = int(priv_str, 16).to_bytes(32, byteorder='big')
-
 def get_addr(priv_int, isprint=0):
     privinp = priv_int.to_bytes(32, byteorder='big')
     priv = SigningKey.from_string(privinp, curve=SECP256k1)
@@ -66,8 +44,8 @@ def get_addr(priv_int, isprint=0):
     if isprint!=0:
         print("Private key:", priv.to_string().hex())
         print("Public key: ", pub.hex())
-        print("Address0:   ", addr)
-        f = open(LOGFILENAME,'a')
+        print("Address:   ", addr)
+        f = open('search_result.log','a')
         f.write('private_key:')
         f.write(priv.to_string().hex())
         f.write('\n')
@@ -75,6 +53,30 @@ def get_addr(priv_int, isprint=0):
         f.write(addr)
         f.write('\n')
     return addr
+
+def get_addr_fromhexstr(priv_str, isprint=0):
+    privinp = int(priv_str, 16).to_bytes(32, byteorder='big')
+    priv = SigningKey.from_string(privinp, curve=SECP256k1)
+    pub = priv.get_verifying_key().to_string()
+
+    keccak = sha3.keccak_256()
+    keccak.update(pub)
+    addr = '0x' + keccak.hexdigest()[24:]
+
+    if isprint!=0:
+        print("Private key:", priv.to_string().hex())
+        print("Public key: ", pub.hex())
+        print("Address:   ", addr)
+        f = open('search_result.log','a')
+        f.write('private_key:')
+        f.write(priv.to_string().hex())
+        f.write('\n')
+        f.write('addr:')
+        f.write(addr)
+        f.write('\n')
+
+    return addr
+
 
 def example():
     priv = SigningKey.generate(curve=SECP256k1)
@@ -86,8 +88,8 @@ def example():
 
     print("Private key:", priv.to_string().hex())
     print("Public key: ", pub.hex())
-    print("Address0:    ", address)
-    print("Address:    ", checksum_encode(address))
+    print("Address:    ", address)
+    print("Address_checksum:    ", checksum_encode(address))
 
     return
 
@@ -100,62 +102,31 @@ def check_key(dict, key):
         ret = True
 
     return ret
- 
-#example()
-#get_addr("0000000000000000000000000000000000000000000000000000000000000001")
-#get_addr("000000000000000000000000000000000000000000000000000000000000000a")
-#get_addr("1111111111111111111111111111111111111111111111111111111111111111")
-#get_addr("7777777777777777777777777777777777777777777777777777777777777777")
-#get_addr("3141592653589793238462643383279502884197169399375105820974944592")
-#get_addr("2718281828459045235362746639193200305992115738341879307021540551")
-#get_addr("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
-print('ethereum account search tool ver 0.1 by jskim')
+print('ethereum account search tool ver 0.1 by neibc')
 
-startn = int("1000000000000000000000000000000000000000000000000000000001142560", 16)
-endn = int("2000000000000000000000000000000000000000000000000000000000000001", 16)
+# test codes..
+get_addr_fromhexstr("0000000000000000000000000000000000000000000000000000000000000001", 1)
+get_addr_fromhexstr("000000000000000000000000000000000000000000000000000000000000000a", 1)
+get_addr_fromhexstr("1111111111111111111111111111111111111111111111111111111111111111", 1)
+get_addr_fromhexstr("7777777777777777777777777777777777777777777777777777777777777777", 1)
+get_addr_fromhexstr("3141592653589793238462643383279502884197169399375105820974944592", 1)
+get_addr_fromhexstr("2718281828459045235362746639193200305992115738341879307021540551", 1)
+get_addr_fromhexstr("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", 1)
+example()
 
-print('start num:')
-print(startn.to_bytes(32, byteorder='big').hex())
-print('end num:')
-print(endn.to_bytes(32, byteorder='big').hex())
-
-logging.info('acc list file loading..')
-dict_from_csv = pd.read_csv('ethacclist.csv', dtype={'address': object}).set_index('address').T.to_dict()
+dict_from_csv = pd.read_csv('ethacclist.csv.small', dtype={'address': object}).set_index('address').T.to_dict()
 print('sample searching on the account list/richest one.. 0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2')
 print(check_key(dict_from_csv, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'))
 
-logging.info('start pair guessing..')
-
-runmode = 0    # 1 for full search from startn to endn, 0 for repeeated pattern
-
-if runmode == 0:
-    print('runmode 0, repeated pattern searching...')
-    for i in [1,2,4,8,16,32]:
-        rangeval = (int)(math.pow(16, i)) - 1
-        logging.info('range : ' + str(i) + ' ' + str(rangeval))
-        for j in range(1, rangeval):
-            curval = genrephex(i, j)
-            addr_str = get_addr(curval)
-
-            if check_key(dict_from_csv, addr_str):
-                print('BINGO:', addr_str)
-                get_addr(curval, 1)
-
-            if j % 100000 == 1:
-                logging.info(curval.to_bytes(32, byteorder='big').hex())
-                f = open(LOGFILENAME,'a')
-                f.write(curval.to_bytes(32, byteorder='big').hex())
-                f.write('\n')
-else:
-    print('runmode 1, full search from startn to endn...')
-    for i in range(startn, endn):
-        addr_str = get_addr(i)
-        if check_key(dict_from_csv, addr_str):
-            print('BINGO:', addr_str)
-            get_addr(i, 1)
-        if i % 100000 == 1:
-            logging.info(i.to_bytes(32, byteorder='big').hex())
-            f = open(LOGFILENAME,'a')
-            f.write(i.to_bytes(32, byteorder='big').hex())
-            f.write('\n')
+for i in range(100000, 100000000):
+    addr_str = get_addr(i)
+    if check_key(dict_from_csv, addr_str):
+        print('bingo:', addr_str)
+        get_addr(i, 1)
+    if i % 100000 == 0:
+        print(i)
+        f = open('search_result.log','a')
+        f.write(str(i))
+        f.write('\n')
+print('end of run')
